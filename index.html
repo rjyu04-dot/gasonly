@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT Grant Fuel Station</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="print.css?v=2">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage" class="login-page">
+    <div class="login-box">
+        <img src="logo.png" class="login-logo">
+        <h2>GT GRANT FUEL STATION</h2>
+
+        <input id="username" placeholder="Username">
+        <input id="password" type="password" placeholder="Password">
+
+        <button onclick="login()">LOGIN</button>
+        <p id="loginError"></p>
+    </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <div>GT GRANT FUEL STATION</div>
+        <div>
+            Logged in as: gas |
+            <span onclick="logout()" class="logout-btn">Logout</span>
+        </div>
+    </header>
+
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="menu active">SOA Generator</div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-content">
+
+            <section class="soa-panel soa-panel-full">
+                <h2>SOA GENERATOR</h2>
+
+                <!-- ENTRY FORM -->
+                <div class="input-card">
+                    <h3>ADD TRANSACTION</h3>
+
+                    <div class="form-grid">
+                        <div>
+                            <label>Date</label>
+                            <input id="entryDate" type="date">
+                        </div>
+
+                        <div>
+                            <label>Product</label>
+                            <select id="entryProduct">
+                                <option>Diesel</option>
+                                <option>Premium</option>
+                                <option>Unleaded</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Liters</label>
+                            <input id="entryLiters" type="number">
+                        </div>
+
+                        <div>
+                            <label>Price / Liter</label>
+                            <input id="entryPrice" type="number">
+                        </div>
+
+                        <div>
+                            <label>Amount</label>
+                            <input id="entryAmount" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-grid second">
+                        <div>
+                            <label>Plate No.</label>
+                            <input id="entryPlateNo">
+                        </div>
+
+                        <div>
+                            <label>Charged To (Agency)</label>
+                            <input id="entryAgency" list="agencyList" placeholder="Agency Name">
+
+<datalist id="agencyList">
+    <option>PDRRMO DART</option>
+    <option>DPWH</option>
+    <option>LGU NAGUILIAN</option>
+    <option>CAMBERWELL</option>
+</datalist>
+                        </div>
+                    </div>
+
+                    <div class="form-grid third">
+                        <div>
+                            <label>Transaction Type</label>
+                            <select id="entryType">
+                                <option>Charge</option>
+                                <option>Sales</option>
+                            </select>
+                        </div>
+
+                        <div class="button-holder">
+                            <button onclick="addTransaction()">
+                                ADD TO SOA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SOA SEARCH -->
+                <div class="soa-controls">
+                    <div class="soa-search-box">
+                        <label>Find Agency / Customer</label>
+                        <input id="soaSearch" placeholder="Type agency name..." onkeydown="if(event.key==='Enter') findAgency()">
+                    </div>
+
+                    <div class="button-holder">
+                        <button onclick="findAgency()">FIND</button>
+                    </div>
+
+                    <div class="button-holder">
+                        <button class="gray" onclick="findAll()">FIND ALL</button>
+                    </div>
+                </div>
+
+                <!-- LIST OF MATCHING SOA PERIODS TO CHOOSE FROM -->
+                <div id="soaList" class="soa-list">
+                    <!-- JS GENERATED list of agency+month cards -->
+                </div>
+
+                <!-- SOA(S) SELECTED FOR VIEW/PRINT -->
+                <div id="soaPreview">
+                    <!-- JS GENERATED -->
+                </div>
+
+                <div id="soaButtons" class="soa-buttons hidden">
+                    <button class="green" onclick="printSOA('all')">
+                        PRINT ALL
+                    </button>
+
+                    <button onclick="printSOA('checked')">
+                        PRINT CHECKED ONLY
+                    </button>
+                </div>
+
+            </section>
+        </main>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
