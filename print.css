@@ -1,3 +1,10 @@
+/* =========================================================
+   GT GRANT FUEL STATION — PRINT-ONLY RULES
+   Only takes effect inside @media print: hides the on-screen
+   UI (buttons, inputs, sidebar) and formats the SOA + attachment
+   pages for clean A4 paper output.
+   ========================================================= */
+
 @page{
     size:A4 portrait;
     margin:8mm;
@@ -20,6 +27,9 @@
     .soa-controls,
     .soa-buttons,
     .soa-list,
+    .attach-controls,
+    .attach-pending-note,
+    .attach-saved-note,
     button,
     input,
     select,
@@ -114,5 +124,18 @@
     /* Rows excluded by the "Print Checked Only" mode */
     body.print-soa .print-exclude{
         display:none !important;
+    }
+
+    /* ATTACHMENT PHOTO PAGES - 6 per page (2 cols x 3 rows), no header */
+    body.print-soa .soa-paper.attachment-paper{
+        border:none !important;
+        page-break-inside:avoid;
+        page-break-after:always;
+    }
+
+    body.print-soa .attachment-grid{
+        grid-template-columns:1fr 1fr !important;
+        grid-template-rows:repeat(3, 92mm) !important;
+        gap:0 !important;
     }
 }
