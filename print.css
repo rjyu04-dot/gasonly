@@ -1,0 +1,118 @@
+@page{
+    size:A4 portrait;
+    margin:8mm;
+}
+
+@media print{
+
+    body{
+        margin:0;
+        padding:0;
+        background:white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Hide UI */
+    .topbar,
+    .sidebar,
+    .input-card,
+    .soa-controls,
+    .soa-buttons,
+    .soa-list,
+    button,
+    input,
+    select,
+    label,
+    h2{
+        display:none !important;
+    }
+
+    .layout,
+    .main-content{
+        display:block !important;
+        padding:0 !important;
+        margin:0 !important;
+    }
+
+    .soa-panel{
+        width:100% !important;
+        border:none !important;
+        padding:0 !important;
+        margin:0 !important;
+        box-shadow:none !important;
+    }
+
+    /* PRINT ONLY SOA */
+    body.print-soa #soaPreview{
+        border:none !important;
+        min-height:auto !important;
+        padding:0 !important;
+        display:block !important;
+    }
+
+    body.print-soa .soa-paper{
+        width:100% !important;
+        border:none !important;
+        padding:2mm !important;
+        page-break-inside:avoid;
+        page-break-after:always;
+    }
+
+    /* don't leave a blank trailing page after the last SOA */
+    body.print-soa .soa-paper:last-child{
+        page-break-after:auto;
+    }
+
+    body.print-soa .soa-watermark{
+        opacity:0.07 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body.print-soa .soa-logo{
+        width:70px !important;
+    }
+
+    body.print-soa .soa-company-info h1{
+        font-size:22px !important;
+    }
+
+    body.print-soa .soa-table{
+        width:100% !important;
+        border-collapse:collapse !important;
+        table-layout:fixed;
+    }
+
+    body.print-soa .soa-table td,
+    body.print-soa .soa-table th{
+        border:1px solid black !important;
+        font-size:10px !important;
+        padding:4px !important;
+    }
+
+    body.print-soa .paid-row{
+        background:black !important;
+        color:white !important;
+    }
+
+    /* Hide the print-select checkbox column when printing */
+    body.print-soa .checkcol{
+        display:none !important;
+    }
+
+    /* Hide the PAID column when printing */
+    body.print-soa table.soa-table th.paidcol,
+    body.print-soa table.soa-table td.paidcol{
+        display:none !important;
+        visibility:hidden !important;
+        width:0 !important;
+        padding:0 !important;
+        border:none !important;
+    }
+
+    /* Rows excluded by the "Print Checked Only" mode */
+    body.print-soa .print-exclude{
+        display:none !important;
+    }
+}

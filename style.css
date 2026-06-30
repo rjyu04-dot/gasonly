@@ -1,0 +1,431 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+/* LOGIN */
+.login-page{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#0f2f75;
+}
+
+.login-box{
+    width:360px;
+    background:#fff;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 15px 35px rgba(0,0,0,.2);
+    text-align:center;
+}
+
+.login-logo{
+    width:100px;
+    margin-bottom:15px;
+}
+
+.login-box h2{
+    margin-bottom:20px;
+    color:#0f2f75;
+}
+
+.login-box input,
+.login-box button{
+    width:100%;
+    padding:12px;
+    margin-top:12px;
+}
+
+.login-box button{
+    background:#0f4bcc;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+.hidden{
+    display:none;
+}
+
+/* TOPBAR */
+.topbar{
+    height:60px;
+    background:#083b96;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+    font-weight:bold;
+}
+
+.logout-btn{
+    cursor:pointer;
+}
+
+/* LAYOUT */
+.layout{
+    display:flex;
+    min-height:calc(100vh - 60px);
+}
+
+.sidebar{
+    width:190px;
+    background:linear-gradient(180deg,#06192d,#0b2f68);
+    color:white;
+    padding:20px 0;
+}
+
+.menu{
+    padding:14px 18px;
+    cursor:pointer;
+}
+
+.menu.active{
+    background:#0f4bcc;
+}
+
+.main-content{
+    flex:1;
+    display:flex;
+    gap:20px;
+    padding:20px;
+    overflow:auto;
+}
+
+/* PANELS */
+.soa-panel{
+    background:white;
+    border:1px solid #d8d8d8;
+    border-radius:4px;
+    padding:20px;
+}
+
+.soa-panel-full{
+    width:100%;
+}
+
+.soa-panel h2{
+    color:#0d43b8;
+    margin-bottom:20px;
+}
+
+/* CARDS */
+.input-card{
+    border:1px solid #ddd;
+    padding:15px;
+    margin-bottom:20px;
+}
+
+.input-card h3{
+    margin-bottom:15px;
+    font-size:15px;
+}
+
+/* FORMS */
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-bottom:15px;
+}
+
+.second{
+    grid-template-columns:1fr 1.7fr;
+}
+
+.third{
+    grid-template-columns:1fr 1fr 1fr 1fr;
+}
+
+label{
+    display:block;
+    font-size:12px;
+    margin-bottom:5px;
+}
+
+input, select{
+    width:100%;
+    padding:8px;
+    border:1px solid #ccc;
+}
+
+button{
+    padding:10px 14px;
+    background:#0f4bcc;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+.button-holder{
+    display:flex;
+    align-items:end;
+}
+
+.green{
+    background:#128a2f;
+}
+
+.gray{
+    background:#6b7280;
+}
+
+/* SOA SEARCH BAR */
+.soa-controls{
+    display:grid;
+    grid-template-columns:1fr auto auto;
+    gap:12px;
+    align-items:end;
+    border:1px solid #ddd;
+    padding:15px;
+    margin-bottom:20px;
+}
+
+.soa-search-box label{
+    margin-bottom:5px;
+}
+
+/* PERIOD LIST (agency + month cards to choose from) */
+.soa-list{
+    margin-bottom:20px;
+}
+
+.soa-period-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13px;
+    color:#444;
+    margin-bottom:10px;
+}
+
+.small-link{
+    background:none;
+    color:#0f4bcc;
+    text-decoration:underline;
+    padding:4px 6px;
+    font-size:12px;
+}
+
+.no-results{
+    color:#888;
+    font-style:italic;
+    padding:10px 0;
+}
+
+.period-cards{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.period-card{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border:1px solid #ddd;
+    border-radius:4px;
+    padding:10px 14px;
+    background:#fafbfc;
+}
+
+.period-card input[type="checkbox"]{
+    width:18px;
+    height:18px;
+    flex-shrink:0;
+}
+
+.period-info{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    cursor:pointer;
+    flex:1;
+}
+
+.period-agency{
+    font-weight:bold;
+    color:#0d43b8;
+    min-width:220px;
+}
+
+.period-month{
+    font-weight:bold;
+}
+
+.period-meta{
+    color:#666;
+    font-size:13px;
+    margin-left:auto;
+}
+
+#soaPreview{
+    display:flex;
+    flex-direction:column;
+    gap:25px;
+}
+
+/* SOA PAPER - letterhead style */
+.soa-paper{
+    border:1px solid black;
+    padding:14px;
+    background:white;
+    position:relative;
+    overflow:hidden;
+}
+
+.soa-watermark{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:60%;
+    opacity:0.06;
+    pointer-events:none;
+    z-index:0;
+}
+
+.soa-watermark img{
+    width:100%;
+    display:block;
+}
+
+.soa-letterhead{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    border-bottom:3px solid black;
+    padding-bottom:10px;
+    margin-bottom:10px;
+    position:relative;
+    z-index:1;
+}
+
+.soa-logo{
+    width:90px;
+    flex-shrink:0;
+}
+
+.soa-company-info{
+    text-align:center;
+    flex:1;
+}
+
+.soa-company-info h1{
+    font-size:28px;
+    letter-spacing:1px;
+    margin-bottom:4px;
+}
+
+.soa-address,
+.soa-prop,
+.soa-contact{
+    font-size:12px;
+    font-weight:bold;
+    line-height:1.5;
+}
+
+.soa-title-bar{
+    text-align:center;
+    margin-bottom:14px;
+    position:relative;
+    z-index:1;
+}
+
+.soa-month-label{
+    font-size:13px;
+    margin-bottom:4px;
+}
+
+.soa-statement-label{
+    font-size:20px;
+    font-weight:bold;
+    letter-spacing:1px;
+    margin-bottom:4px;
+}
+
+.soa-agency-name{
+    font-size:16px;
+    font-weight:bold;
+    text-decoration:underline;
+}
+
+.soa-table{
+    width:100%;
+    border-collapse:collapse;
+    position:relative;
+    z-index:1;
+}
+
+.soa-table th,
+.soa-table td{
+    border:1px solid black;
+    padding:5px;
+    font-size:12px;
+    text-align:center;
+}
+
+.checkcol{
+    width:48px;
+}
+
+.paid-row{
+    background:black;
+    color:white;
+}
+
+.soa-buttons{
+    margin-top:15px;
+}
+
+/* RESPONSIVE */
+@media (max-width:1200px){
+    .main-content{
+        flex-direction:column;
+    }
+
+    .soa-panel{
+        width:100%;
+    }
+}
+
+@media (max-width:768px){
+    .sidebar{
+        display:none;
+    }
+
+    .form-grid,
+    .second,
+    .third,
+    .soa-controls{
+        grid-template-columns:1fr;
+    }
+
+    .period-info{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:4px;
+    }
+
+    .period-agency{
+        min-width:0;
+    }
+
+    .period-meta{
+        margin-left:0;
+    }
+
+    .soa-letterhead{
+        flex-direction:column;
+        text-align:center;
+    }
+}
