@@ -1,15 +1,29 @@
+/* =========================================================
+   GT GRANT FUEL STATION — SOA GENERATOR
+   All app data (USERS, transactions, attachments) lives in
+   memory for this session; only the login state is kept in
+   localStorage so a page refresh doesn't kick the user out.
+   ========================================================= */
+
+/* Valid login accounts: username -> password */
 const USERS = {
     gas: "1234"
 };
 
-let invoiceNumber = 10000;
-let transactions = [];
+let invoiceNumber = 10000;   // next invoice number to assign
+let transactions  = [];      // all SOA transactions added this session
+
+/* ATTACHMENTS: key = "agency||YYYY-MM" -> array of image dataURLs
+   (the photos attached to that agency's SOA for that month) */
+let attachments = {};
 
 const MONTH_NAMES = [
     "JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE",
     "JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"
 ];
 
+/* Escapes user-typed text before it's inserted into innerHTML, so
+   names like O'Brien or <Agency> can't break the markup. */
 function escapeHtml(str) {
     return String(str)
         .replace(/&/g, "&amp;")
@@ -19,14 +33,24 @@ function escapeHtml(str) {
         .replace(/'/g, "&#39;");
 }
 
-/* LOGIN */
+/* =========================================================
+   LOGIN / SESSION
+   ========================================================= */
+
+/* Shows the app and hides the login screen. Shared by the
+   login button and the "stay logged in on refresh" check. */
+function showApp() {
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+}
+
 function login() {
     const user = document.getElementById("username").value.trim();
     const pass = document.getElementById("password").value.trim();
 
     if (USERS[user] && USERS[user] === pass) {
-        document.getElementById("loginPage").classList.add("hidden");
-        document.getElementById("app").classList.remove("hidden");
+        localStorage.setItem("gtLoggedIn", "1"); // remember session across refresh
+        showApp();
     } else {
         document.getElementById("loginError").innerText =
             "Invalid username/password";
@@ -34,10 +58,24 @@ function login() {
 }
 
 function logout() {
+    localStorage.removeItem("gtLoggedIn"); // clear session, then reload to login screen
     location.reload();
 }
 
-/* AUTO COMPUTE (entry form) */
+/* On every page load, check if there's a remembered session.
+   If so, skip straight to the app instead of showing the login
+   page again (this is what fixes the "refresh logs me out" bug). */
+document.addEventListener("DOMContentLoaded", function () {
+    if (localStorage.getItem("gtLoggedIn") === "1") {
+        showApp();
+    }
+});
+
+/* =========================================================
+   ENTRY FORM (ADD TRANSACTION)
+   ========================================================= */
+
+/* Auto-computes Amount = Liters x Price/Liter as the user types. */
 document.addEventListener("input", function (e) {
     if (e.target.id === "entryLiters" || e.target.id === "entryPrice") {
         const liters = Number(document.getElementById("entryLiters").value || 0);
@@ -46,7 +84,7 @@ document.addEventListener("input", function (e) {
     }
 });
 
-/* ADD TRANSACTION */
+/* Reads the entry form, validates it, and pushes a new transaction. */
 function addTransaction() {
     const date = document.getElementById("entryDate").value;
     const product = document.getElementById("entryProduct").value;
@@ -72,7 +110,7 @@ function addTransaction() {
         plateNo: plateNo,
         agency: agency,
         type: type,
-        paid: type === "Sales"
+        paid: type === "Sales" // Sales is paid on the spot; Charge starts unpaid
     };
 
     transactions.push(transaction);
@@ -82,6 +120,7 @@ function addTransaction() {
     alert("Transaction added for " + agency + ".");
 }
 
+/* Resets the entry form fields after a transaction is added. */
 function clearEntryForm() {
     document.getElementById("entryDate").value = "";
     document.getElementById("entryLiters").value = "";
@@ -91,7 +130,13 @@ function clearEntryForm() {
     document.getElementById("entryAgency").value = "";
 }
 
-/* Build a map of agency -> { "YYYY-MM": [transactions] } */
+/* =========================================================
+   GROUPING / SEARCH
+   ========================================================= */
+
+/* Groups transactions by agency + month ("YYYY-MM"), so each
+   group becomes one printable SOA statement. Pass an agency
+   name to filter, or null to group everything (FIND ALL). */
 function groupTransactions(filterAgency) {
     const groups = {}; // key: agency||YYYY-MM
 
@@ -159,7 +204,11 @@ function findAll() {
     renderPeriodList(groups, true);
 }
 
-/* Render the clickable list of agency+month "SOA cards" */
+/* =========================================================
+   PERIOD LIST (the agency + month cards the user checks off)
+   ========================================================= */
+
+/* Renders the clickable list of agency+month "SOA cards". */
 function renderPeriodList(groups, isFindAll) {
     const listEl = document.getElementById("soaList");
 
@@ -195,16 +244,18 @@ function renderPeriodList(groups, isFindAll) {
     window.__currentGroups = groups;
 }
 
+/* Re-renders the SOA preview whenever a period checkbox changes. */
 function togglePeriodSelection(i) {
     renderSelectedSOAs();
 }
 
+/* Checks every visible period card, then renders all of them. */
 function selectAllPeriods() {
     document.querySelectorAll(".periodCheck").forEach(cb => cb.checked = true);
     renderSelectedSOAs();
 }
 
-/* Build the actual SOA preview pages for every checked period card */
+/* Builds the actual SOA preview pages for every checked period card. */
 function renderSelectedSOAs() {
     const groups = window.__currentGroups || [];
     const preview = document.getElementById("soaPreview");
@@ -224,9 +275,15 @@ function renderSelectedSOAs() {
     buttonsEl.classList.toggle("hidden", !anySelected);
 }
 
-/* Render a single SOA page (one agency, one month) in the letterhead format */
+/* =========================================================
+   SOA PAPER (the printable letterhead statement)
+   ========================================================= */
+
+/* Renders a single SOA page (one agency, one month) in the
+   letterhead format, followed by its attachment photo page(s). */
 function renderSoaPaper(group, groupIndex) {
     const label = `${MONTH_NAMES[group.monthIndex]} ${group.year}`;
+    const groupKey = group.agency + "||" + group.ym;
     let balance = 0;
     let lastDate = "";
 
@@ -302,17 +359,176 @@ function renderSoaPaper(group, groupIndex) {
             </tr>
             ${rows}
         </table>
+
+        <div class="attach-controls">
+            <label class="attach-label">ATTACH FILE(S) &mdash; e.g. photos of the charge invoices for ${escapeHtml(label)}</label>
+            <input type="file" accept="image/*" multiple class="attach-input"
+                onchange="handleAttachFiles('${groupKey}', this)">
+
+            ${renderPendingThumbs(groupKey)}
+
+            <button type="button" class="save-attach-btn"
+                onclick="saveAttachments('${groupKey}')"
+                ${(pendingAttachments[groupKey] || []).length === 0 ? "disabled" : ""}>
+                SAVE PICTURE TO THIS SOA
+            </button>
+
+            ${renderAttachThumbs(groupKey)}
+        </div>
     </div>
+    ${renderAttachmentPages(group, groupKey)}
     `;
 }
 
-/* CHECKBOX - PAID STATUS (re-renders to keep running balance correct) */
+/* =========================================================
+   ATTACHMENTS (uploaded charge-invoice photos)
+   ========================================================= */
+
+/* PENDING ATTACHMENTS: key = "agency||YYYY-MM" -> array of image
+   dataURLs the user has picked but not yet clicked SAVE on. These
+   are NOT part of the printed SOA until saveAttachments() runs. */
+let pendingAttachments = {};
+
+/* Renders the "not yet saved" preview thumbnails plus a note,
+   shown above the SAVE button so the user knows what will be
+   added once they click Save. */
+function renderPendingThumbs(groupKey) {
+    const imgs = pendingAttachments[groupKey] || [];
+    if (imgs.length === 0) return "";
+
+    let html = `<div class="attach-pending-note">${imgs.length} photo(s) selected — not yet saved:</div>`;
+    html += `<div class="attach-thumbs attach-thumbs-pending">`;
+    imgs.forEach((src, idx) => {
+        html += `
+        <div class="attach-thumb attach-thumb-pending">
+            <img src="${src}">
+            <button type="button" class="remove-thumb" onclick="removePendingAttachment('${groupKey}', ${idx})">&times;</button>
+        </div>
+        `;
+    });
+    html += `</div>`;
+    return html;
+}
+
+/* Renders the small on-screen thumbnails of photos already SAVED
+   to this agency/month's SOA (not printed, just for review/removal). */
+function renderAttachThumbs(groupKey) {
+    const imgs = attachments[groupKey] || [];
+    if (imgs.length === 0) return "";
+
+    let html = `<div class="attach-saved-note">Saved to this SOA:</div>`;
+    html += `<div class="attach-thumbs">`;
+    imgs.forEach((src, idx) => {
+        html += `
+        <div class="attach-thumb">
+            <img src="${src}">
+            <button type="button" class="remove-thumb" onclick="removeAttachment('${groupKey}', ${idx})">&times;</button>
+        </div>
+        `;
+    });
+    html += `</div>`;
+    return html;
+}
+
+/* Reads newly selected photo files as base64 dataURLs and stages
+   them as "pending" for this agency/month — they aren't added to
+   the SOA yet, just previewed, until the user clicks SAVE. */
+function handleAttachFiles(groupKey, input) {
+    const files = Array.from(input.files || []);
+    if (files.length === 0) return;
+    if (!pendingAttachments[groupKey]) pendingAttachments[groupKey] = [];
+
+    let remaining = files.length;
+    files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            pendingAttachments[groupKey].push(e.target.result);
+            remaining--;
+            if (remaining === 0) {
+                renderSelectedSOAs();
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+/* SAVE button handler: moves the staged/pending photos for this
+   agency/month into the real attachments list, which is what
+   actually shows up on the printed attachment page(s). */
+function saveAttachments(groupKey) {
+    const pending = pendingAttachments[groupKey] || [];
+    if (pending.length === 0) return;
+
+    if (!attachments[groupKey]) attachments[groupKey] = [];
+    attachments[groupKey] = attachments[groupKey].concat(pending);
+
+    pendingAttachments[groupKey] = [];
+    renderSelectedSOAs();
+    alert("Photo(s) saved to this SOA.");
+}
+
+/* Removes one photo from the pending (not-yet-saved) preview. */
+function removePendingAttachment(groupKey, idx) {
+    if (pendingAttachments[groupKey]) {
+        pendingAttachments[groupKey].splice(idx, 1);
+        renderSelectedSOAs();
+    }
+}
+
+/* Removes one already-saved attached photo from an agency/month. */
+function removeAttachment(groupKey, idx) {
+    if (attachments[groupKey]) {
+        attachments[groupKey].splice(idx, 1);
+        renderSelectedSOAs();
+    }
+}
+
+/* Builds extra page(s) holding the attached photos, laid out
+   automatically 6 per page (2 columns x 3 rows) like a photocopied
+   invoice sheet — no letterhead/header, just the photos. If more
+   than 6 are attached, it keeps adding pages of 6 until every
+   photo is placed. */
+function renderAttachmentPages(group, groupKey) {
+    const imgs = attachments[groupKey] || [];
+    if (imgs.length === 0) return "";
+
+    const perPage = 6;
+    let pagesHtml = "";
+
+    for (let p = 0; p < imgs.length; p += perPage) {
+        const pageImgs = imgs.slice(p, p + perPage);
+
+        let cells = "";
+        pageImgs.forEach(src => {
+            cells += `<div class="attachment-cell"><img src="${src}"></div>`;
+        });
+
+        pagesHtml += `
+        <div class="soa-paper attachment-paper">
+            <div class="attachment-grid">
+                ${cells}
+            </div>
+        </div>
+        `;
+    }
+
+    return pagesHtml;
+}
+
+/* =========================================================
+   PAID STATUS / PRINTING
+   ========================================================= */
+
+/* Toggles a transaction's paid flag and re-styles its row
+   (re-rendering the whole table would also reset the running
+   balance, so this just flips the highlight in place). */
 function toggleTransactionPaid(idx, rowId) {
     transactions[idx].paid = !transactions[idx].paid;
     document.getElementById(rowId).classList.toggle("paid-row");
 }
 
-/* PRINT */
+/* Triggers the browser print dialog. mode "all" prints every row;
+   mode "checked" hides any row whose PRINT checkbox is unticked. */
 function printSOA(mode) {
     document.body.classList.add("print-soa");
 
@@ -332,7 +548,8 @@ function printSOA(mode) {
     window.print();
 }
 
-/* CLEAR */
+/* Reloads the page to clear the entry form back to blank.
+   (Login state is preserved since it lives in localStorage.) */
 function clearForm() {
     location.reload();
 }
